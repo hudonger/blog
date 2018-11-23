@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>数据代理</title>
+</head>
+<body>
+  <script>
+    let person = {
+      name: 'donger',
+      age: 25,
+      friends: ['大牙', '大鼻', '大嘴']
+    }
+
+    proxy(person)
+    
+    // person.name = 'haha'
+    console.log(person.friends)
+
+    function proxy (data) {
+      const keys = Object.keys(data)
+      keys.forEach(key => {
+        var value = data[key]
+        Object.defineProperty(data, key, {
+          enumerable: true,
+          configurable: false,
+          get () {
+            console.log(`get ${value}`)
+            return value
+          },
+          set (newValue) {
+            console.log(`set ${value}`)
+            value = newValue
+          }
+        })
+        if (typeof value === 'object') {
+          proxy(value)
+        }
+      })
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>发布订阅</title>
+</head>
+<body>
+  <script>
+    class Publisher {
+      constructor () {
+        this.observerList = []
+      }
+
+      addObserver (observer) {
+        if (this.observerList.indexOf(observer) === -1) {
+          this.observerList.push(observer)
+        }
+      }
+
+      removerObserver (observer) {
+        const index = this.observerList.indexOf(observer)
+        if (index > -1) {
+          this.observerList.splice(index, 1)
+        }
+      }
+
+      notify () {
+        this.observerList.forEach(item => item.update())
+      }
+    }
+
+    class Observer {
+      constructor (name) {
+        this.name = name
+      }
+
+      update () {
+        console.log(`${this.name} update`)
+      }
+
+      addToPublisher (publisher) {
+        publisher.addObserver(this)
+      }
+    }
+
+    const userInfo = new Publisher()
+    const component1 = new Observer('component1')
+    const component2 = new Observer('component2')
+
+    component1.addToPublisher(userInfo)
+    component2.addToPublisher(userInfo)
+
+    userInfo.notify()
+  </script>
+</body>
+</html>
