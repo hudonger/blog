@@ -8,7 +8,7 @@
 </head>
 <body>
   <script>
-    class Publisher {
+    class Subject {
       constructor () {
         this.observerList = []
       }
@@ -40,17 +40,17 @@
         console.log(`${this.name} update`)
       }
 
-      addToPublisher (publisher) {
-        publisher.addObserver(this)
+      addToSubject (subject) {
+        subject.addObserver(this)
       }
     }
 
-    const userInfo = new Publisher()
+    const userInfo = new Subject()
     const component1 = new Observer('component1')
     const component2 = new Observer('component2')
 
-    component1.addToPublisher(userInfo)
-    component2.addToPublisher(userInfo)
+    component1.addToSubject(userInfo)
+    component2.addToSubject(userInfo)
 
     userInfo.notify()
   </script>
