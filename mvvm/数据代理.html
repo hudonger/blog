@@ -16,22 +16,26 @@
 
     proxy(person)
     
-    // person.name = 'haha'
-    console.log(person.friends)
+    // person.name
+    // person.age = 18
+    person.friends
 
     function proxy (data) {
+      if (!data || typeof data !== 'object') return
+      
       const keys = Object.keys(data)
       keys.forEach(key => {
-        var value = data[key]
+        let value = data[key]
         Object.defineProperty(data, key, {
-          enumerable: true,
-          configurable: false,
+          configurable: true, // 可被删除
+          enumerable: true, // 可被遍历
           get () {
             console.log(`get ${value}`)
+            // console.log(key, value)
             return value
           },
           set (newValue) {
-            console.log(`set ${value}`)
+            console.log(`${value} >>> ${newValue}`)
             value = newValue
           }
         })

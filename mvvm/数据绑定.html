@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>数据绑定</title>
+</head>
+<body>
+  <div id="app" >
+    <h2>name: {{name}}, age: {{age}}</h2>
+  </div>
+
+  <script>
+    let id = 0
+    let currentObserver = null
+
+    // 数据代理
+    const proxy = data => {
+      if (!data || typeof data !== 'object') return
+
+      const keys = Object.keys(data)
+      keys.forEach(key => {
+        let value = data[key]
+        let subject = new Subject() // 为每个属性创建一个主题
+        Object.defineProperty(data, key, {
+          configurable: true,
+          enumerable: true,
+          get () {
+            // 在读取属性的时候订阅主题
+            if (currentObserver) {
+              currentObserver.subscribeTo(subject)
+            }
+            return value
+          },
+          set (newValue) {
+            value = newValue
+            subject.notify()
+          }
+        })
+        if (typeof value === 'object') {
+          proxy(value)
+        }
+      })
+    }
+
+    class Subject {
+      constructor () {
+        this.id = id++
+        this.observers = [] // 观察者列表
+      }
+      addObserver (observer) {
+        this.observers.push(observer)
+      }
+      removeObserver (observer) {
+        const index = this.observers.indexOf(observer)
+        if (index > -1) {
+          this.observers.splice(index, 1)
+        }
+      }
+      notify () {
+        this.observers.forEach(observer => {
+          observer.update()
+        })
+      }
+    }
+
+    class Observer {
+      constructor (vm, key, callback) {
+        this.subjects = {}
+        this.vm = vm
+        this.key = key
+        this.callback = callback
+        this.value = this.getProxyValue()
+      }
+
+      update () {
+        const oldValue = this.value
+        const value = this.getProxyValue()
+        if (value !== oldValue) {
+          this.value = value
+          this.callback(value, oldValue)
+        }
+      }
+
+      subscribeTo (subject) {
+        if (!this.subjects[subject.id]) {
+          subject.addObserver(this)
+          this.subjects[subject.id] = subject
+        }
+      }
+
+      getProxyValue () {
+        // 把自己变成当前的观察者
+        currentObserver = this
+        // 调用属性的代理方法 get
+        const value = this.vm.$data[this.key]
+        currentObserver = null
+        return value
+      }
+    }
+
+    class mvvm {
+      constructor (options) {
+        this.init(options)
+        proxy(this.$data)
+        this.compile(this.$el)
+      }
+
+      init (options) {
+        this.$el = document.querySelector(options.el)
+        this.$data = options.data
+      }
+
+      compile (node) {
+        if (node.nodeType === 1) { // 元素节点
+          node.childNodes.forEach(childNode => {
+            this.compile(childNode)
+          })
+        } else if(node.nodeType === 3){ // 文本节点
+          this.render(node)
+        }
+      }
+
+      render (node) {
+        let reg = /{{(.+?)}}/g
+        let match
+        while (match = reg.exec(node.nodeValue)) {
+          let templateText = match[0]
+          let key = match[1].trim()
+          node.nodeValue = node.nodeValue.replace(templateText, this.$data[key])
+          // 创建观察者
+          new Observer(this, key, (value, oldValue) => {
+            node.nodeValue = node.nodeValue.replace(oldValue, value)
+          })
+        }
+      }
+    }
+
+    const vm = new mvvm({
+      el: '#app',
+      data: {
+        name: 'donger',
+        age: 1
+      }
+    })
+
+    setInterval(() => {
+      vm.$data.age++
+    }, 1000)
+  </script>
+</body>
+</html>
