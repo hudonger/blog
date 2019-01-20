@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>脏值检测</title>
+</head>
+<body>
+  <button v-click="add">add</button>
+  <button v-click="reset">reset</button>
+  <span v-bind="count"></span>
+
+  <script>
+    let count = 0
+
+    function add () {
+      count++
+    }
+
+    function reset () {
+      count = 0
+    }
+
+    function init () {
+      bind()
+      update()
+    }
+
+    function bind () {
+      let eventList = document.querySelectorAll("[v-click]")
+
+      for (let i = 0; i < eventList.length; i++) {
+        eventList[i].addEventListener('click', () => {
+          window[eventList[i].getAttribute("v-click")]()
+          update()
+        })
+      }
+    }
+
+    function update () {
+      let bindList = document.querySelectorAll("[v-bind='count']")
+
+      for (let i = 0; i < bindList.length; i++) {
+        if (bindList[i].innerHTML !== count) bindList[i].innerHTML = count
+      }
+    }
+
+    init()
+  </script>
+</body>
+</html>

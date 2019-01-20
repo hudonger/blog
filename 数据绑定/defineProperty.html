@@ -11,14 +11,14 @@
     let person = {
       name: 'donger',
       age: 25,
-      friends: ['大牙', '大鼻', '大嘴']
+      friends: ['哈哈哈', '嘻嘻嘻', '嘿嘿嘿']
     }
 
     proxy(person)
     
     // person.name
     // person.age = 18
-    person.friends
+    person.friends[0] = 20
 
     function proxy (data) {
       if (!data || typeof data !== 'object') return
@@ -30,12 +30,13 @@
           configurable: true, // 可被删除
           enumerable: true, // 可被遍历
           get () {
-            console.log(`get ${value}`)
-            // console.log(key, value)
+            // console.log(`get ${value}`)
+            console.log(value)
             return value
           },
           set (newValue) {
-            console.log(`${value} >>> ${newValue}`)
+            // console.log(`${value} >>> ${newValue}`)
+            console.log(newValue)
             value = newValue
           }
         })
